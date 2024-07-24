@@ -52,9 +52,10 @@ void DisassembleChip(uint8_t* codebuffer ,int pc){
             printf("%-10s V%01X,#$%02x", "ADI", code[0]&0xf, code[1]);
             break;
         case 0x08:
-            // 08 -> represents a lot of instructions ;  it follows a pattern of 0x08XYK
+            // 08 -> represents a lot of instructions ;  it follows a pattern of 0x8XYK
             // where K is 0-E
-            uint8_t lastnib = code[1]<<4;
+            uint8_t lastnib = code[1] & 0x0f;
+            printf("last nib %01x",lastnib);
             switch(lastnib){
                 case 0:
                     // Store the value of register VY in register VX
@@ -163,7 +164,7 @@ void DisassembleChip(uint8_t* codebuffer ,int pc){
     }
 }
 
-int main(int argc, char const *argv[])
+int read_rom(int argc, char const *argv[])
 {
     FILE *f = fopen(argv[1],"rb");
     if(f==NULL){
