@@ -1,11 +1,8 @@
 #include "disamb.h"
 #include "emulator.h"
 
-int main(int argc, char const *argv[])
-{
+int main(int argc,const char* argv[]){
     read_rom(argc,argv);
-    Chip8State* state = InitChip8();
-    EmulateChip8(state);
+    // EmulateChip8();
     return 0;
 }
-

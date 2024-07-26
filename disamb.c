@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "emulator.h"
 // uint8_t corresponds to 1byte
 
 void DisassembleChip(uint8_t* codebuffer ,int pc){
@@ -55,7 +56,7 @@ void DisassembleChip(uint8_t* codebuffer ,int pc){
             // 08 -> represents a lot of instructions ;  it follows a pattern of 0x8XYK
             // where K is 0-E
             uint8_t lastnib = code[1] & 0x0f;
-            printf("last nib %01x",lastnib);
+            // printf("last nib %01x",lastnib);
             switch(lastnib){
                 case 0:
                     // Store the value of register VY in register VX
@@ -164,7 +165,7 @@ void DisassembleChip(uint8_t* codebuffer ,int pc){
     }
 }
 
-int read_rom(int argc, char const *argv[])
+void read_rom(int argc, char const *argv[])
 {
     FILE *f = fopen(argv[1],"rb");
     if(f==NULL){
@@ -186,15 +187,25 @@ int read_rom(int argc, char const *argv[])
     fclose(f);
 
     // program counter address of instruction to disassemble
-    int pc = 0x200;
     
     // so the pc is within the range of 0x200 - fsize
-    while(pc<(fsize+0x200)){
-        DisassembleChip(buffer,pc);
-        // Increasing +2 since in chip8 each instruction is contained in 1byte 0x200-2(one ins.) 0x202-4(second)
-        pc+=2;
-        printf("\n");
+    Chip8State* c = InitChip8();
+    long i = 0;
+    
+    c->memory = buffer;
+    
+    // Copying memory
+
+    for(long i=0;i<fsize;i++){
+        c->memory[0x200+i] = buffer[i+0x200];
     }
 
-    return 0;
+    while(c->PC<(fsize+0x200)){
+        DisassembleChip(c->memory,c->PC);
+        EmulateChip8(c);
+        // Increasing +2 since in chip8 each instruction is contained in 1byte 0x200-2(one ins.) 0x202-4(second)
+        // pc+=2;
+        c->PC+=2;
+        printf("\n");
+    }
 }

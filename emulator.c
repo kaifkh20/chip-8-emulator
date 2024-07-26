@@ -1,21 +1,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "emulator.h"
+#include "font.h"
 
+#define FONT_BASE 0    
+#define FONT_SIZE 5*16  //5 bytes each * 16 characterss   
 
-Chip8State* InitChip8(void){
+Chip8State* InitChip8(){
     Chip8State* c = calloc(sizeof(Chip8State),1);
     c->memory = calloc(1024*4,1); // 4096kb
     c->screen = &c->memory[0xf00]; // we make screen buffer at 0xf00
     c->SP = 0xfa0;
     c->PC = 0x200;
+
+    memcpy(&c->memory[FONT_BASE],font,FONT_SIZE);
+
+    return c;
 }
 
 
 void EmulateChip8(Chip8State* state){
+    printf("\nEmulator ");
+
     uint8_t *op = &state->memory[state->PC];
-    int highnib = op[0]>>4;
+    int highnib = op[0]>>4;    
+    printf("%04x %02x %02x\n",state->PC,op[0],op[1]);
+
     switch (highnib){
         case 0x00:
             break;
@@ -100,11 +112,15 @@ void EmulateChip8(Chip8State* state){
                 case 0x18:
                     state->sound = state->V[reg];
                     break;
+                case 0x29:
+                    {
+                        int reg = op[0]&0xf;
+                        state->I = FONT_BASE+(state->V[reg]*5);
+                        break;
+                    }
             }
             break;
 
     }
 
-
-    // printf("%02x %02x",op[0],op[1]);
 }
