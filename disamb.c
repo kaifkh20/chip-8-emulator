@@ -165,7 +165,7 @@ void DisassembleChip(uint8_t* codebuffer ,int pc){
     }
 }
 
-void read_rom(int argc, char const *argv[])
+Chip8State* read_rom(int argc, char const *argv[])
 {
     FILE *f = fopen(argv[1],"rb");
     if(f==NULL){
@@ -200,12 +200,21 @@ void read_rom(int argc, char const *argv[])
         c->memory[0x200+i] = buffer[i+0x200];
     }
 
+    int pc = 0x200;
+    printf("Memory Copied Succesfully\n");
     while(c->PC<(fsize+0x200)){
-        DisassembleChip(c->memory,c->PC);
+        DisassembleChip(buffer,pc);
         EmulateChip8(c);
         // Increasing +2 since in chip8 each instruction is contained in 1byte 0x200-2(one ins.) 0x202-4(second)
-        // pc+=2;
-        c->PC+=2;
+        pc+=2;
+        if(c->halt==1){
+            break;
+        }
+        // c->PC+=2;
         printf("\n");
     }
+
+    return c;
+
+    // printf("Emulation Finsihed\n");
 }

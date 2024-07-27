@@ -3,8 +3,10 @@
 #define DISAMB_H
 
 #include <stdint.h>
+#include "emulator.h"
 
 void DisassembleChip(uint8_t* codebuffer ,int pc);
-int read_rom(int argc,char const* argv[]);
+
+Chip8State* read_rom(int argc,char const* argv[]);
 
 #endif
