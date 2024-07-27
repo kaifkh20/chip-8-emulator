@@ -202,9 +202,8 @@ Chip8State* read_rom(int argc, char const *argv[])
 
     int pc = 0x200;
     printf("Memory Copied Succesfully\n");
-    while(c->PC<(fsize+0x200)){
+    while(pc<(fsize+0x200)){
         DisassembleChip(buffer,pc);
-        EmulateChip8(c);
         // Increasing +2 since in chip8 each instruction is contained in 1byte 0x200-2(one ins.) 0x202-4(second)
         pc+=2;
         if(c->halt==1){
