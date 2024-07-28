@@ -14,15 +14,17 @@ Chip8State* InitChip8(){
     c->screen = &c->memory[0xf00]; // we make screen buffer at 0xf00
     c->SP = 0xfa0;
     c->PC = 0x200;
-
+    c->delay = 0;
     memcpy(&c->memory[FONT_BASE],font,FONT_SIZE);
 
     return c;
 }
 
+// uint8_t time = 0;
 
 void EmulateChip8(Chip8State* state){
     printf("\nEmulator ");
+
 
     if(state->halt==1){
         printf("Emulation Finished\n");
@@ -215,8 +217,11 @@ void EmulateChip8(Chip8State* state){
             state->V[0xf] = 0;
             for (i=0; i<lines; i++)
             {
+                // get the current byte on sprite
                 uint8_t *sprite = &state->memory[state->I+i];
+                // iterate over each bit in a sprite byte 
                 int spritebit=7;
+                // iterating over width of sprite and also checking for screen bound
                 for (j=x; j<(x+8) && j<64; j++)
                 {
                     int jover8 = j / 8;     //picks the byte in the row
@@ -225,8 +230,11 @@ void EmulateChip8(Chip8State* state){
                     
                     if (srcbit)
                     {
+                        // y cord * 8(a byte){gives us correct row} + current x cordinate{correct column or byte}
+
                         uint8_t *destbyte_p = &state->screen[ (i+y) * (64/8) + jover8];
                         uint8_t destbyte = *destbyte_p;
+                        // msb of destbyte (meaning the exact bit of destbyte corresponding to spritebyte)
                         uint8_t destmask = (0x80 >> jmod8);
                         uint8_t destbit = destbyte & destmask;
 
@@ -237,6 +245,7 @@ void EmulateChip8(Chip8State* state){
                         
                         destbit ^= srcbit;
                         
+                        // setting the only bit we want to modify
                         destbyte = (destbyte & ~destmask) | destbit;
 
                         *destbyte_p = destbyte;
